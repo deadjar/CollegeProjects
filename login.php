@@ -1,6 +1,7 @@
 <?php
 include('db_connection.php');
 session_start();
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
@@ -11,11 +12,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
         $hashedPassword = $row['password_hash'];
-    
+
         // Verify the hashed password
         if (password_verify($password, $hashedPassword)) {
             $_SESSION['user_id'] = $row['user_id'];  // Set user_id in the session
-            header("Location: profile.php");
+
+            if ($row['user_type'] == 'admin') {
+                // Redirect admin users to the admin dashboard
+                header("Location: admindashboard.php");
+            } else {
+                // Redirect non-admin users to the profile page
+                header("Location: profile.php");
+            }
+
             exit();
         } else {
             $loginError = "Invalid username or password.";
@@ -29,7 +38,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 if (isset($loginError)) {
     echo "<p class='error'>$loginError</p>";
 }
-
 ?>
 
 <!DOCTYPE html>
