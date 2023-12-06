@@ -2,6 +2,13 @@
 include('db_connection.php');
 session_start();
 
+$sql_users = "SELECT * FROM users";
+$sql_students = "SELECT * FROM students_information";
+$sql_advisors = "SELECT * FROM advisorship";
+
+$result_users = $conn->query($sql_users);
+$result_students = $conn->query($sql_students);
+$result_advisors = $conn->query($sql_advisors);
 ?>
 
 <!DOCTYPE html>
@@ -15,105 +22,86 @@ session_start();
     <title>Admin Dashboard</title>
 </head>
 <body>
-    <?php include 'header.php'; ?>
 
-    <div class="container mt-4">
-        <!-- Users Information Table -->
-        <h2>Users Information</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <!-- Add table headers based on your user_information table columns -->
-                    <th scope="col">#</th>
-                    <th scope="col">First Name</th>
-                    <th scope="col">Last Name</th>
-                    <!-- Add more headers as needed -->
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                // Fetch and display user_information data
-                // Modify the SQL query based on your table structure
-                $sql = "SELECT * FROM user_information";
-                $result = $conn->query($sql);
+<?php include 'header.php'; ?>
 
-                while ($row = $result->fetch_assoc()) {
-                    echo '<tr>';
-                    echo '<th scope="row">' . $row['id'] . '</th>';
-                    echo '<td>' . $row['first_name'] . '</td>';
-                    echo '<td>' . $row['last_name'] . '</td>';
-                    // Add more columns as needed
-                    echo '</tr>';
-                }
-                ?>
-            </tbody>
-        </table>
-
-        <!-- Users Table -->
-        <h2>Users</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <!-- Add table headers based on your users table columns -->
-                    <th scope="col">#</th>
-                    <th scope="col">Username</th>
-                    <th scope="col">User Type</th>
-                    <!-- Add more headers as needed -->
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                // Fetch and display users data
-                // Modify the SQL query based on your table structure
-                $sql = "SELECT * FROM users";
-                $result = $conn->query($sql);
-
-                while ($row = $result->fetch_assoc()) {
-                    echo '<tr>';
-                    echo '<th scope="row">' . $row['user_id'] . '</th>';
-                    echo '<td>' . $row['username'] . '</td>';
-                    echo '<td>' . $row['user_type'] . '</td>';
-                    // Add more columns as needed
-                    echo '</tr>';
-                }
-                ?>
-            </tbody>
-        </table>
-
-        <!-- Mentorship Table -->
-        <h2>Mentorship</h2>
-        <table class="table">
-            <thead>
-                <tr>
-                    <!-- Add table headers based on your mentorship table columns -->
-                    <th scope="col">#</th>
-                    <th scope="col">Mentor ID</th>
-                    <th scope="col">Mentee ID</th>
-                    <!-- Add more headers as needed -->
-                </tr>
-            </thead>
-            <tbody>
-                <?php
-                // Fetch and display mentorship data
-                // Modify the SQL query based on your table structure
-                $sql = "SELECT * FROM mentorship";
-                $result = $conn->query($sql);
-
-                while ($row = $result->fetch_assoc()) {
-                    echo '<tr>';
-                    echo '<th scope="row">' . $row['id'] . '</th>';
-                    echo '<td>' . $row['mentor_id'] . '</td>';
-                    echo '<td>' . $row['mentee_id'] . '</td>';
-                    // Add more columns as needed
-                    echo '</tr>';
-                }
-                ?>
-            </tbody>
-        </table>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-13">
+            <h3>Student Information</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-condensed table-hover">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>User ID</th>
+                            <th>First Name</th>
+                            <th>Last Name</th>
+                            <th>Date of Birth</th>
+                            <th>Gender</th>
+                            <th>Email</th>
+                            <th>Address</th>
+                            <th>Profile Picture</th>
+                            <th>Assigned Advisor</th>
+                            <th>Personal Bio</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        while ($row = $result_students->fetch_assoc()) {
+                            echo "<tr>
+                                    <td>{$row['id']}</td>
+                                    <td>{$row['user_id']}</td>
+                                    <td>{$row['first_name']}</td>
+                                    <td>{$row['last_name']}</td>
+                                    <td>{$row['date_of_birth']}</td>
+                                    <td>{$row['gender']}</td>
+                                    <td>{$row['email']}</td>
+                                    <td>{$row['address']}</td>
+                                    <td>{$row['profile_picture']}</td>
+                                    <td>{$row['assigned_advisor']}</td>
+                                    <td>{$row['personal_bio']}</td>
+                                  </tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br>                
+        <div class="col-md-9">
+            <h3>Advisorship</h3>
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead>
+                        <tr>
+                            <th>Advisor ID</th>
+                            <th>Expertise</th>
+                            <th>Introduction</th>
+                            <th>Advisor Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php
+                        while ($row = $result_advisors->fetch_assoc()) {
+                            echo "<tr>
+                                    <td>{$row['advisor_id']}</td>
+                                    <td>{$row['expertise']}</td>
+                                    <td>{$row['introduction']}</td>
+                                    <td>{$row['advisor_name']}</td>
+                                  </tr>";
+                        }
+                        ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
+</div>
 
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
