@@ -4,16 +4,20 @@ include('db_connection.php');
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = $_POST['username'];
     $password = $_POST['password'];
+    $confirmPassword = $_POST['confirm_password'];
     $firstName = $_POST['first_name'];
     $lastName = $_POST['last_name'];
     $dob = $_POST['dob'];
     $gender = $_POST['gender'];
     $email = $_POST['email'];
     $address = $_POST['address'];
+    $userType = $_POST['user_type']; // New field
 
     // Basic client-side validation (you can enhance this with more checks)
-    if (empty($username) || empty($password) || empty($firstName) || empty($lastName) || empty($dob) || empty($gender) || empty($email) || empty($address)) {
+    if (empty($username) || empty($password) || empty($confirmPassword) || empty($firstName) || empty($lastName) || empty($dob) || empty($gender) || empty($email) || empty($address) || empty($userType)) {
         echo "Please fill in all required fields.";
+    } elseif ($password !== $confirmPassword) {
+        echo "Passwords do not match. Please confirm your password.";
     } else {
         // Check if the username already exists
         $checkSql = "SELECT * FROM users WHERE username = ?";
@@ -29,17 +33,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Hash the password before storing it in the database
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            // Handle profile picture upload and get the file name
-            $profilePictureName = uploadProfilePicture();
-
             // Use prepared statement to prevent SQL injection
-            $insertUserSql = "INSERT INTO users (username, password_hash) VALUES (?, ?)";
+            $insertUserSql = "INSERT INTO users (username, password_hash, user_type) VALUES (?, ?, ?)";
             $stmt = $conn->prepare($insertUserSql);
-            $stmt->bind_param("ss", $username, $hashedPassword);
+            $stmt->bind_param("sss", $username, $hashedPassword, $userType);
 
             if ($stmt->execute()) {
                 // Get the user_id of the newly inserted user
-                $userId = $stmt->insert_id;
+                $userId = $conn->insert_id;
+
+                // Handle profile picture upload
+                $profilePictureName = null;
+
+                if (!empty($_FILES['profile_picture']['name'])) {
+                    $targetDirectory = $_SERVER['DOCUMENT_ROOT'] . "/CollegeProjects/profile_pictures/"; // Adjust the path as needed
+                    $profilePictureName = basename($_FILES['profile_picture']['name']);
+                    $targetFilePath = $targetDirectory . $profilePictureName;
+                
+                    // Create the directory if it doesn't exist
+                    if (!is_dir($targetDirectory)) {
+                        mkdir($targetDirectory, 0755, true); // Creates the directory recursively
+                    }
+                
+                    if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetFilePath)) {
+                        echo "Profile picture uploaded successfully.";
+                    } else {
+                        echo "Error uploading profile picture.";
+                        exit; // Exit the script if there's an error
+                    }
+                }
 
                 // Insert additional details into students_information table
                 $insertDetailsSql = "INSERT INTO students_information (user_id, first_name, last_name, date_of_birth, gender, email, address, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
@@ -47,55 +69,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->bind_param("isssssss", $userId, $firstName, $lastName, $dob, $gender, $email, $address, $profilePictureName);
 
                 if ($stmt->execute()) {
+                    // Insert a default row into student_docs
+                    $insertStudentDocsSql = "INSERT INTO student_docs (user_id) VALUES (?)";
+                    $stmt = $conn->prepare($insertStudentDocsSql);
+                    $stmt->bind_param("i", $userId);
+                    $stmt->execute();
+
                     echo "Registration successful! You can now <a href='home.php'>login</a>.";
                     // Redirect to login page after a few seconds
                     header("refresh:5;url=home.php");
                 } else {
-                    echo "Error during registration.";
+                    echo "Error during registration: " . $stmt->error;
                 }
             } else {
-                echo "Error during registration.";
+                echo "Error during registration: " . $stmt->error;
             }
 
             $stmt->close();
         }
     }
 }
-
-function uploadProfilePicture() {
-    $targetDirectory = "profile_pictures/";
-    $targetFile = $targetDirectory . basename($_FILES["profile_picture"]["name"]);
-
-    // Check if a file was uploaded successfully
-    if ($_FILES["profile_picture"]["error"] != UPLOAD_ERR_OK) {
-        echo "Error uploading file.";
-        exit();
-    }
-
-    // Validate file type and size
-    $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-    $allowedTypes = array("jpg", "jpeg", "png", "gif");
-    $maxFileSize = 5 * 1024 * 1024;  // 5 MB
-
-    if (!in_array($imageFileType, $allowedTypes)) {
-        echo "Invalid file format. Only JPG, JPEG, PNG, and GIF files are allowed.";
-        exit();
-    }
-
-    if ($_FILES["profile_picture"]["size"] > $maxFileSize) {
-        echo "File size exceeds the limit (5 MB).";
-        exit();
-    }
-
-    // Move the uploaded file to the target directory
-    if (move_uploaded_file($_FILES["profile_picture"]["tmp_name"], $targetFile)) {
-        return basename($_FILES["profile_picture"]["name"]);
-    } else {
-        echo "Error uploading file.";
-        exit();
-    }
-}
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark" >
@@ -121,6 +116,10 @@ function uploadProfilePicture() {
                 <label for="password">Password:</label>
                 <input type="password" id="password" name="password" class="form-control bg-dark text-light" required>
             </div>
+            <div class="col-md-6">
+    <label for="confirm_password">Confirm Password:</label>
+    <input type="password" id="confirm_password" name="confirm_password" class="form-control bg-dark text-light" required>
+</div>
             <div class="col-6">
                 <label for="first_name">First Name:</label>
                 <input type="text" id="first_name" name="first_name" class="form-control bg-dark text-light" required>
@@ -148,6 +147,12 @@ function uploadProfilePicture() {
             <div class="form-group col-md-6">
                 <label for="address">Address:</label>
                 <input type="text" id="address" name="address" class="form-control bg-dark text-light" required>
+            </div>
+            <div class="col-md-6">
+                <label for="user_type">User Type:</label>
+                <select id="user_type" name="user_type" class="form-control bg-dark text-light" required>
+                    <option value="student">student</option>
+                </select>
             </div>
             <div class="form-group">
                 <label for="profile_picture">Profile Picture:</label>
