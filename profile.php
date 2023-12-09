@@ -104,33 +104,30 @@
         </div>
         <div class="container grid">
             <div class="row justify-content-center">
-                <div class="card col-md-6 mb-4 p-2 mr-2" style="width: 18rem;">
-                    <h5>Resume</h5>
-                    <?php if ($documents['student_resume']): ?>
-                    <iframe src="<?php echo $documents['student_resume']; ?>"
-                        title="student_resume"></iframe>
-                    <?php else: ?>
-                    <p>No resume uploaded.</p>
-                    <?php endif; ?>
-                </div>
-                <div class="card col-md-6 mb-4 p-2 mr-2" style="width: 18rem;">
-                    <h5>Cover Letter</h5>
-                    <?php if ($documents['student_cover_letter']): ?>
-                    <iframe src="<?php echo $documents['student_cover_letter']; ?>"
-                        title="student_cover_letter"></iframe>
-                    <?php else: ?>
-                    <p>No cover letter uploaded.</p>
-                    <?php endif; ?>
-                </div>
-                <div class="card col-md-6 mb-4 p-2 mr-2" style="width: 18rem;">
-                    <h5>Projects</h5>
-                    <?php if ($documents['student_projects']): ?>
-                    <iframe src="<?php echo $documents['student_projects']; ?>"
-                        title="student_projects"></iframe>
-                    <?php else: ?>
-                    <p>No projects uploaded.</p>
-                    <?php endif; ?>
-                </div>
+            <div class="card col-md-6 mb-4 p-2 mr-2" style="width: 18rem;">
+    <h5>Resume</h5>
+    <?php if ($documents && isset($documents['student_resume'])): ?>
+        <iframe src="<?php echo $documents['student_resume']; ?>" title="student_resume"></iframe>
+    <?php else: ?>
+        <p>No resume uploaded.</p>
+    <?php endif; ?>
+</div>
+<div class="card col-md-6 mb-4 p-2 mr-2" style="width: 18rem;">
+    <h5>Cover Letter</h5>
+    <?php if ($documents && isset($documents['student_cover_letter'])): ?>
+        <iframe src="<?php echo $documents['student_cover_letter']; ?>" title="student_cover_letter"></iframe>
+    <?php else: ?>
+        <p>No cover letter uploaded.</p>
+    <?php endif; ?>
+</div>
+<div class="card col-md-6 mb-4 p-2 mr-2" style="width: 18rem;">
+    <h5>Projects</h5>
+    <?php if ($documents && isset($documents['student_projects'])): ?>
+        <iframe src="<?php echo $documents['student_projects']; ?>" title="student_projects"></iframe>
+    <?php else: ?>
+        <p>No projects uploaded.</p>
+    <?php endif; ?>
+</div>
             </div>
             <form action="upload.php" method="post" enctype="multipart/form-data">
                 <div class="mb-3">
