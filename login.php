@@ -13,15 +13,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $row = $result->fetch_assoc();
         $hashedPassword = $row['password_hash'];
 
-        // Verify the hashed password
         if (password_verify($password, $hashedPassword)) {
-            $_SESSION['user_id'] = $row['user_id'];  // Set user_id in the session
+            $_SESSION['user_id'] = $row['user_id'];  
 
             if ($row['user_type'] == 'admin') {
-                // Redirect admin users to the admin dashboard
+                
                 header("Location: admindashboard.php");
             } else {
-                // Redirect non-admin users to the profile page
+                
                 header("Location: profile.php");
             }
 
@@ -34,7 +33,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-// Move the header outside the condition
+
 if (isset($loginError)) {
     echo "<p class='error'>$loginError</p>";
 }
@@ -71,7 +70,7 @@ if (isset($loginError)) {
         </div>
     </div>
 </div>
-<!-- Bootstrap JS and dependencies -->
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>

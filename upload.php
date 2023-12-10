@@ -9,7 +9,7 @@ if (!isset($_SESSION['user_id'])) {
 
 $userId = $_SESSION['user_id'];
 
-// Display PHP errors for debugging
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -26,7 +26,7 @@ function handleFileUpload($fileKey, $columnName, $fileType) {
 
         echo "Debug: Original File Name: $originalFileName<br>";
 
-        // Check for errors during file upload
+        
         if ($file['error'] !== UPLOAD_ERR_OK) {
             echo "Error uploading $fileType file. Error code: " . $file['error'];
             return;
@@ -36,7 +36,7 @@ function handleFileUpload($fileKey, $columnName, $fileType) {
         echo "Debug: Unique File Name: $uniqueFileName<br>";
         echo "Debug: File Path: $filePath<br>";
 
-        // Check if the directory exists
+        
         if (!is_dir('student_documents')) {
             mkdir('student_documents', 0777, true);
         }

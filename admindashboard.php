@@ -207,7 +207,6 @@ while ($row = $result_students->fetch_assoc()) {
                         </button>
                     </div>
                     <div class="modal-body">
-                        <!-- Add your form fields for adding a new advisor here -->
                         <form action="process_add_advisor.php" method="post">
                             <div class="form-group">
                                 <label for="expertise">Expertise:</label>

@@ -1,8 +1,7 @@
 <?php
 $isLoggedIn = isset($_SESSION['user_id']);
 
-// Define the logout URL
-$logoutUrl = 'logout.php'; // Change this to the actual logout page URL
+$logoutUrl = 'logout.php'; 
 
 ?>
 

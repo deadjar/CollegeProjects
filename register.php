@@ -11,15 +11,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $gender = $_POST['gender'];
     $email = $_POST['email'];
     $address = $_POST['address'];
-    $userType = $_POST['user_type']; // New field
+    $userType = $_POST['user_type']; 
 
-    // Basic client-side validation (you can enhance this with more checks)
+    
     if (empty($username) || empty($password) || empty($confirmPassword) || empty($firstName) || empty($lastName) || empty($dob) || empty($gender) || empty($email) || empty($address) || empty($userType)) {
         echo "Please fill in all required fields.";
     } elseif ($password !== $confirmPassword) {
         echo "Passwords do not match. Please confirm your password.";
     } else {
-        // Check if the username already exists
+        
         $checkSql = "SELECT * FROM users WHERE username = ?";
         $stmt = $conn->prepare($checkSql);
         $stmt->bind_param("s", $username);
@@ -30,53 +30,53 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($result->num_rows > 0) {
             echo "Username '$username' is already taken. Please choose another username.";
         } else {
-            // Hash the password before storing it in the database
+            
             $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
 
-            // Use prepared statement to prevent SQL injection
+            
             $insertUserSql = "INSERT INTO users (username, password_hash, user_type) VALUES (?, ?, ?)";
             $stmt = $conn->prepare($insertUserSql);
             $stmt->bind_param("sss", $username, $hashedPassword, $userType);
 
             if ($stmt->execute()) {
-                // Get the user_id of the newly inserted user
+               
                 $userId = $conn->insert_id;
 
-                // Handle profile picture upload
+                
                 $profilePictureName = null;
 
                 if (!empty($_FILES['profile_picture']['name'])) {
-                    $targetDirectory = $_SERVER['DOCUMENT_ROOT'] . "/CollegeProjects/profile_pictures/"; // Adjust the path as needed
+                    $targetDirectory = $_SERVER['DOCUMENT_ROOT'] . "/CollegeProjects/profile_pictures/"; 
                     $profilePictureName = basename($_FILES['profile_picture']['name']);
                     $targetFilePath = $targetDirectory . $profilePictureName;
                 
-                    // Create the directory if it doesn't exist
+                    
                     if (!is_dir($targetDirectory)) {
-                        mkdir($targetDirectory, 0755, true); // Creates the directory recursively
+                        mkdir($targetDirectory, 0755, true); 
                     }
                 
                     if (move_uploaded_file($_FILES['profile_picture']['tmp_name'], $targetFilePath)) {
                         echo "Profile picture uploaded successfully.";
                     } else {
                         echo "Error uploading profile picture.";
-                        exit; // Exit the script if there's an error
+                        exit; 
                     }
                 }
 
-                // Insert additional details into students_information table
+                
                 $insertDetailsSql = "INSERT INTO students_information (user_id, first_name, last_name, date_of_birth, gender, email, address, profile_picture) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
                 $stmt = $conn->prepare($insertDetailsSql);
                 $stmt->bind_param("isssssss", $userId, $firstName, $lastName, $dob, $gender, $email, $address, $profilePictureName);
 
                 if ($stmt->execute()) {
-                    // Insert a default row into student_docs
+                    
                     $insertStudentDocsSql = "INSERT INTO student_docs (user_id) VALUES (?)";
                     $stmt = $conn->prepare($insertStudentDocsSql);
                     $stmt->bind_param("i", $userId);
                     $stmt->execute();
 
                     echo "Registration successful! You can now <a href='home.php'>login</a>.";
-                    // Redirect to login page after a few seconds
+                    
                     header("refresh:5;url=home.php");
                 } else {
                     echo "Error during registration: " . $stmt->error;
@@ -163,12 +163,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
 </div>
 
-<!-- Bootstrap JS and dependencies -->
+
 <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 
-<!-- Simple JavaScript for client-side validation -->
+
 <script>
     document.querySelector('form').onsubmit = function() {
         var password = document.getElementById('password').value;
