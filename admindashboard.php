@@ -13,7 +13,7 @@ $result_advisors = $conn->query($sql_advisors);
 if (isset($_GET['delete_student'])) {
     $studentIdToDelete = $_GET['delete_student'];
 
-    $deleteSql = "DELETE FROM students_information WHERE students_information_id = ?";
+    $deleteSql = "DELETE FROM users WHERE user_id = ?";
     $deleteStmt = $conn->prepare($deleteSql);
     $deleteStmt->bind_param("i", $studentIdToDelete);
 
